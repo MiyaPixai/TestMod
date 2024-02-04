@@ -40,7 +40,7 @@ public class EntitySpawnerBlock extends Block implements EntityBlock {
     public @NotNull InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         EntitySpawnBlockEntity ent = ((EntitySpawnBlockEntity) level.getBlockEntity(pos));
         if (ent != null) {
-            ent.use(player);
+            ent.use(level, pos, player);
             return InteractionResult.SUCCESS;
         } else {
             return InteractionResult.PASS;

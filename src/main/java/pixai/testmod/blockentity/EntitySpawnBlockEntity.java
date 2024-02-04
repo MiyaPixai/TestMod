@@ -1,5 +1,6 @@
 package pixai.testmod.blockentity;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import pixai.testmod.TestMod;
 import net.minecraft.core.BlockPos;
@@ -17,9 +18,13 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EntitySpawnBlockEntity extends BlockEntity{
-    private float tickInterval = 100;
-    private float currentTick = 0;
+    private int tickInterval = 100;
+    private int currentTick = 0;
     private boolean isPowered = false;
+
+    private static final String TAG_POWERED = "powered";
+    private static final String TAG_INTERVAL = "interval";
+
 
     public EntitySpawnBlockEntity(BlockPos pos, BlockState state) {
         super(TestMod.TEST_SPAWNER_BLOCK_ENTITY.get(), pos, state);
@@ -48,17 +53,35 @@ public class EntitySpawnBlockEntity extends BlockEntity{
     }
 
     @Nullable
-    public BlockState use(Player player) {
+    public BlockState use(Level level, BlockPos pos, Player player) {
         tickInterval = player.isShiftKeyDown() ?
                 tickInterval + 5 :
                 tickInterval - 5;
 
         player.displayClientMessage(Component.literal("Interval: " + tickInterval), true);
 
+        setChanged();
+
         return null;
     }
 
     public void setPoweredState(boolean hasSignal) {
         isPowered = hasSignal;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
+
+        compound.putBoolean(TAG_POWERED, isPowered);
+        compound.putInt(TAG_INTERVAL, tickInterval);
+    }
+
+    @Override
+    public void load(CompoundTag compound) {
+        super.load(compound);
+
+        isPowered = compound.getBoolean(TAG_POWERED);
+        tickInterval = compound.getInt(TAG_INTERVAL);
     }
 }
